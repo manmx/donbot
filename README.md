@@ -1,4 +1,4 @@
 # donbot
 
-sudo docker build ./ --tag donbot
-sudo docker run donbot
+1. sudo docker build ./ --tag donbot
+2. sudo docker run donbot
