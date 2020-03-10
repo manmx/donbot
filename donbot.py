@@ -2,31 +2,40 @@
 import os
 import random
 
-import discord
+from discord.ext import commands
+from discord import FFmpegPCMAudio
+from discord.utils import get
 from dotenv import load_dotenv
 
 load_dotenv()
 token = os.getenv('DISCORD_TOKEN')
 
+sounds = ['m_auw', 'm_hehe', 'm_wow', 'surprise', 'diablo', 'callate', 'idiota', 'freezer', 'goshi', 'ninos', 'shi', 'la_puta', 'el_peluca', 'goku_estupido', 'simio', 'dias']
 
-client = discord.Client()
+bot = commands.Bot(command_prefix='*')
+@bot.command(name='play')
+async def soundBoard(ctx, arg):
+    #await ctx.send(str(arg))
+    #if len(arg) == 0 or len(arg) > 1:
+    #    await ctx.send("Specify a sound:" + str(sounds))
+    #    return
+    if str(arg) in sounds:
+        await playSound(ctx, str(arg) + ".mp3")
+    else:
+        await ctx.send("Specify a sound:" + str(sounds))
+    return
 
-@client.event
-async def on_ready():
-    print(f'{client.user} has connected to Discord!')
-
-@client.event
-async def on_member_join(member):
-    await member.create_dm()
-    await member.dm_channel.send(
-        f'Hi {member.name}, welcome to my Discord server!'
-    )
-
-@client.event
-async def on_message(message):
-    if message.author == client.user:
+async def playSound(ctx, soundName):
+    channel = ctx.message.author.voice.channel
+    if not channel:
+        await ctx.send("You are not connected to a voice channel")
         return
-    if message.content == '-putitotest':
-        response = "Usted es " + str(random.randint(1,100)) + "% putito"
-        await message.channel.send(response)
-client.run(token)
+    voice = get(bot.voice_clients, guild=ctx.guild)
+    if voice and voice.is_connected():
+        await voice.move_to(channel)
+    else:
+        voice = await channel.connect()
+    source = FFmpegPCMAudio(soundName)
+    player = voice.play(source)
+
+bot.run(token)
