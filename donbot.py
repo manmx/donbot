@@ -38,4 +38,9 @@ async def playSound(ctx, soundName):
     source = FFmpegPCMAudio(soundName)
     player = voice.play(source)
 
+@bot.command(name='hola')
+async def holafunc(ctx):
+    await ctx.send("Mi nombre es Harry el sucio Potter")
+
+
 bot.run(token)
