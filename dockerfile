@@ -30,6 +30,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-COPY sounds/ ./
 
 CMD [ "python", "./donbot.py" ]
