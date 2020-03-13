@@ -1,6 +1,6 @@
 FROM jrottenberg/ffmpeg as ffmpeg
 
-FROM python:3
+FROM python:3.7-buster
 
 COPY --from=ffmpeg /usr/local /usr/local
 
@@ -28,8 +28,10 @@ RUN apt-get -y update && apt-get install -y wget nano git build-essential yasm p
 
 RUN pip install --no-cache-dir -r requirements.txt
 
+RUN pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
+
 COPY . .
 
 COPY sounds/ ./
 
-CMD [ "python", "./donbot.py" ]
+CMD [ "python", "-u", "./donbot.py" ]
