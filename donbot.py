@@ -15,12 +15,16 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from googleapiclient.http import MediaIoBaseDownload
 
+from os import listdir
+from os.path import isfile, join
+
 from gtts import gTTS 
 
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly', 'https://www.googleapis.com/auth/drive.apps.readonly', 'https://www.googleapis.com/auth/drive.readonly']
 sounds = []
 bot = commands.Bot(command_prefix='*')
+soundsPath = "/usr/src/app/sounds/"
 
 def main():
     global sounds
@@ -34,9 +38,8 @@ async def say_discord(ctx, arg):
     text = arg
     language = 'es'
     speech = gTTS(text = text, lang = language, slow = False)
-    speech.save('/usr/src/app/sounds/text.mp3')
+    speech.save(f'{soundsPath}text.mp3')
     await playSound(ctx, "text.mp3")
-    #os.remove('/usr/src/app/sounds/text.mp3')
 
 @bot.command(name='initSounds')
 async def initSounds_discord(ctx):
@@ -45,7 +48,7 @@ async def initSounds_discord(ctx):
     sounds = initSounds()
     await ctx.send(f"Sounds have been initialized, list of sounds:{str(sounds)}")
 
-@bot.command(name='play')
+@bot.command(name='p')
 async def soundBoard(ctx, arg):
     if str(arg) in sounds:
         await playSound(ctx, str(arg) + ".mp3")
@@ -63,10 +66,10 @@ async def playSound(ctx, soundName):
         await voice.move_to(channel)
     else:
         voice = await channel.connect()
-    source = FFmpegPCMAudio(f"/usr/src/app/sounds/{soundName}")
+    source = FFmpegPCMAudio(f"{soundsPath}{soundName}")
     player = voice.play(source)
 
-def initSounds():
+def connectToDrive():
     """Shows basic usage of the Drive v3 API.
     Prints the names and ids of the first 10 files the user has access to.
     """
@@ -91,8 +94,10 @@ def initSounds():
             pickle.dump(creds, token)
 
     service = build('drive', 'v3', credentials=creds)
+    return service
 
-    # Call the Drive v3 API
+def initSounds():
+    service = connectToDrive()
     results = service.files().list(
         q="mimeType='application/vnd.google-apps.folder' and name = 'sounds'",
         pageSize=10, fields="nextPageToken, files(id, name)").execute()
@@ -101,6 +106,7 @@ def initSounds():
     if not items:
         print('Sounds folder not found')
     else:
+        filesIndex = [f for f in listdir(soundsPath) if isfile(join(soundsPath, f))]
         folder=items[0]
         print(u'{0} ({1})'.format(folder['name'], folder['id']))
         folderId = folder['id']
@@ -115,7 +121,8 @@ def initSounds():
             print('Files:')
             for item in items:
                 print(u'{0} ({1})'.format(item['name'], item['id']))
-                downloadFile(item, service)
+                if not item['name'] in filesIndex:
+                    downloadFile(item, service)
             return list(o['name'].replace('.mp3', '') for o in items)
                 
 def downloadFile(item, drive_service):
@@ -126,7 +133,7 @@ def downloadFile(item, drive_service):
     while done is False:
         status, done = downloader.next_chunk()
         print(f"Download {str(int(status.progress() * 100))}%.")
-    path = f"/usr/src/app/sounds/{item['name']}"
+    path = f"{soundsPath}{item['name']}"
     print(f"Path: {path}")
     f = open(path, 'wb')
     f.write(fh.getbuffer())
