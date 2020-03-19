@@ -1,28 +1,18 @@
-FROM jrottenberg/ffmpeg as ffmpeg
+FROM jrottenberg/ffmpeg:4.1-ubuntu as ffmpeg
 
 FROM python:3.7-buster
 
 COPY --from=ffmpeg /usr/local /usr/local
 
-RUN echo "deb http://security.debian.org/debian-security jessie/updates main" >> /etc/apt/sources.list
-
 RUN apt-get update -y
-
-RUN apt-get install -y --no-install-recommends \
-    libssl1.0.0
-
-RUN apt-get install -y \ 
-    libavdevice-dev \
-    libavfilter-dev \
-    libavresample-dev \
-    libpostproc-dev \
-    libssl-dev
 
 WORKDIR /usr/src/app
 
 COPY requirements.txt ./
 
 RUN apt-get -y update && apt-get install -y wget nano git build-essential yasm pkg-config
+
+RUN apt-get install libopus0
 
 # Compile and install ffmpeg from source
 
