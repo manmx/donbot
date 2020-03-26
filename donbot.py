@@ -21,27 +21,28 @@ from os.path import isfile, join
 from gtts import gTTS 
 
 # If modifying these scopes, delete the file token.pickle.
+
 SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly', 'https://www.googleapis.com/auth/drive.apps.readonly', 'https://www.googleapis.com/auth/drive.readonly']
 sounds = []
-bot = commands.Bot(command_prefix='*')
+bot = commands.Bot(command_prefix='_')
 soundsPath = "/usr/src/app/sounds/"
 
 def main():
     global sounds
-    sounds = initSounds()
+    #sounds = initSounds()
     load_dotenv()
     token = os.getenv('DISCORD_TOKEN')
     bot.run(token)
 
-@bot.command(name='say')
+@bot.command(name='say') ## voz con texto
 async def say_discord(ctx, arg):
     text = arg
-    language = 'es'
-    speech = gTTS(text = text, lang = language, slow = False)
-    speech.save(f'{soundsPath}text.mp3')
-    await playSound(ctx, "text.mp3")
+    language = 'ru'
+    speech = gTTS(text = text, lang = language, slow = False) ##convierte a texto	
+    speech.save(f'{soundsPath}text.mp3') #lo guarda en .mp3
+    await playSound(ctx, "text.mp3") #reproduce
 
-@bot.command(name='initSounds')
+@bot.command(name='initSounds') 
 async def initSounds_discord(ctx):
     global sounds
     await ctx.send("Please wait, initializing sounds")
