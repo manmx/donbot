@@ -1,3 +1,4 @@
 .env
 sounds/
 credentials.json
+token.pickle

@@ -20,26 +20,74 @@ from os.path import isfile, join
 
 from gtts import gTTS 
 
+import time
+from timeloop import Timeloop
+from datetime import timedelta
+
+INITIAL_PICKLES = 20
+STEP_PICKLES = 2
+SOUND_PRICE_PICKLES = 1
+
+#-----------------------------------------
+class PickleUser:
+    def __init__(self, id, name):
+        self.id = id
+        self.name = name
+        self.pickles = INITIAL_PICKLES
+    
+    def __str__(self):
+        return f"{str(self.name)}<{str(self.id)}>: {str(self.pickles)}\t pickles."
+#--------------------------------------------
+
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly', 'https://www.googleapis.com/auth/drive.apps.readonly', 'https://www.googleapis.com/auth/drive.readonly']
 sounds = []
+my_players = {}
 bot = commands.Bot(command_prefix='*')
 soundsPath = "/usr/src/app/sounds/"
+timeloop = Timeloop()
 
 def main():
     global sounds
+    timeloop.start(block=False)
     sounds = initSounds()
     load_dotenv()
     token = os.getenv('DISCORD_TOKEN')
     bot.run(token)
 
+@timeloop.job(interval=timedelta(minutes=1))
+def sample_job_every_5s():
+    print(f"Giving {STEP_PICKLES} pickles to everyone")
+    global my_players
+    if my_players:
+        for playerKey in my_players.keys():
+            my_players[playerKey].pickles += STEP_PICKLES
+    
+
 @bot.command(name='say')
 async def say_discord(ctx, arg):
+    if not canUseSound(ctx.author.id):
+        await ctx.send("You cannot use this command because you are poor")
+        return
+
+    ctx.author.id
     text = arg
     language = 'es'
     speech = gTTS(text = text, lang = language, slow = False)
     speech.save(f'{soundsPath}text.mp3')
     await playSound(ctx, "text.mp3")
+
+def canUseSound(userId):
+    if userId == "204363336329068545":
+        return True
+
+    global my_players
+    newBalance = my_players[userId].pickles - SOUND_PRICE_PICKLES
+    if newBalance < 0:
+        return False
+
+    my_players[userId].pickles = newBalance
+    return True
 
 @bot.command(name='initSounds')
 async def initSounds_discord(ctx):
@@ -48,13 +96,42 @@ async def initSounds_discord(ctx):
     sounds = initSounds()
     await ctx.send(f"Sounds have been initialized, list of sounds:{str(sounds)}")
 
+@bot.command(name='initList')
+async def initList_discord(ctx):
+    global my_players
+    await ctx.send("Initializing list of pickle members")
+    for member in ctx.message.guild.members:
+        if not member.id in my_players.keys():
+            my_players[member.id] = PickleUser(member.id, member.name)
+    await ctx.send("Pickle list ready")
+
+@bot.command(name='showList')
+async def showList_discord(ctx):
+    global my_players
+    completeList = ""
+    for player in my_players.values():
+        completeList += str(player) + "\n"
+    await ctx.send(completeList)
+
 @bot.command(name='p')
 async def soundBoard(ctx, arg):
+    if not canUseSound(ctx.author.id):
+        await ctx.send("You cannot use this command because you are poor")
+        return
+
     if str(arg) in sounds:
         await playSound(ctx, str(arg) + ".mp3")
     else:
         await ctx.send("Specify a sound:" + str(sounds))
     return
+
+@bot.command(name='balance')
+async def balance_discord(ctx):
+    await ctx.send(f"Your pickle balance is {getBalance(ctx.author.id)}")
+
+def getBalance(userId):
+    global my_players
+    return my_players[userId].pickles
 
 async def playSound(ctx, soundName):
     channel = ctx.message.author.voice.channel

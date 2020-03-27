@@ -16,12 +16,12 @@ RUN apt-get install libopus0
 
 # Compile and install ffmpeg from source
 
-RUN pip install --no-cache-dir -r requirements.txt
-
 RUN pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
+
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-COPY sounds/ ./
+RUN mkdir sounds
 
 CMD [ "python", "-u", "./donbot.py" ]
