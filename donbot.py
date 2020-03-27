@@ -24,9 +24,10 @@ import time
 from timeloop import Timeloop
 from datetime import timedelta
 
-INITIAL_PICKLES = 20
-STEP_PICKLES = 2
+INITIAL_PICKLES = 5
+STEP_PICKLES = 1
 SOUND_PRICE_PICKLES = 1
+MAX_PICKLES = 1
 
 #-----------------------------------------
 class PickleUser:
@@ -61,7 +62,8 @@ def sample_job_every_5s():
     global my_players
     if my_players:
         for playerKey in my_players.keys():
-            my_players[playerKey].pickles += STEP_PICKLES
+            if my_players[playerKey].pickles >= MAX_PICKLES:
+                my_players[playerKey].pickles += STEP_PICKLES
     
 
 @bot.command(name='say')
