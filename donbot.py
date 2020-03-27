@@ -23,12 +23,12 @@ from gtts import gTTS
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly', 'https://www.googleapis.com/auth/drive.apps.readonly', 'https://www.googleapis.com/auth/drive.readonly']
 sounds = []
-bot = commands.Bot(command_prefix='*')
+bot = commands.Bot(command_prefix='ñ')
 soundsPath = "/usr/src/app/sounds/"
 
 def main():
     global sounds
-    sounds = initSounds()
+    #sounds = initSounds()
     load_dotenv()
     token = os.getenv('DISCORD_TOKEN')
     bot.run(token)
