@@ -26,6 +26,11 @@ SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly', 'https://ww
 sounds = []
 bot = commands.Bot(command_prefix='_')
 soundsPath = "/usr/src/app/sounds/"
+#-----------------------------------------
+class Player:
+    def alta_player(self):
+        print("My NOMBRE ES" + self.name)
+#--------------------------------------------
 
 def main():
     global sounds
@@ -37,7 +42,7 @@ def main():
 @bot.command(name='say') ## voz con texto
 async def say_discord(ctx, arg):
     text = arg
-    language = 'ru'
+    language = 'es'
     speech = gTTS(text = text, lang = language, slow = False) ##convierte a texto	
     speech.save(f'{soundsPath}text.mp3') #lo guarda en .mp3
     await playSound(ctx, "text.mp3") #reproduce
@@ -56,6 +61,17 @@ async def soundBoard(ctx, arg):
     else:
         await ctx.send("Specify a sound:" + str(sounds))
     return
+
+@bot.command(name='prueba')
+async def jugador_disord(ctx, arg):
+    #x=int(a)
+    x=Player()
+    x.name = "CesarObjeto"
+    x.level = 30
+    x.alta_player()
+    print("hola")
+    await ctx.send(arg)
+
 
 async def playSound(ctx, soundName):
     channel = ctx.message.author.voice.channel
