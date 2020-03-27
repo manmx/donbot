@@ -53,8 +53,10 @@ def main():
 
 @timeloop.job(interval=timedelta(seconds=5))
 def sample_job_every_5s():
+    print("Giving 5 pickles to everyone")
     global my_players
-
+    if my_players:
+        my_players = [player.pickles+=5 for player in my_players]
     
 
 @bot.command(name='say')
@@ -75,8 +77,11 @@ async def initSounds_discord(ctx):
 @bot.command(name='initList')
 async def initList_discord(ctx):
     global my_players
+    await ctx.send("Initializing list of pickle members")
     for member in ctx.message.guild.members:
-        my_players.append(PickleUser(member.id, member.name, 100))
+        if not member in my_players:
+            my_players.append(PickleUser(member.id, member.name, 100))
+    await ctx.send("Pickle list ready")
 
 @bot.command(name='showList')
 async def showList_discord(ctx):
