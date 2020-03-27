@@ -28,8 +28,11 @@ bot = commands.Bot(command_prefix='_')
 soundsPath = "/usr/src/app/sounds/"
 #-----------------------------------------
 class Player:
-    def alta_player(self):
-        print("My NOMBRE ES" + self.name)
+    def __init__(self, name, level):
+        self.name = name
+        self.level = level
+    
+my_players = []    
 #--------------------------------------------
 
 def main():
@@ -62,16 +65,21 @@ async def soundBoard(ctx, arg):
         await ctx.send("Specify a sound:" + str(sounds))
     return
 
+#-------------------Callejeras Tabla
 @bot.command(name='prueba')
-async def jugador_disord(ctx, arg):
-    #x=int(a)
-    x=Player()
-    x.name = "CesarObjeto"
-    x.level = 30
-    x.alta_player()
-    print("hola")
-    await ctx.send(arg)
+async def jugador_disord(ctx, arg, a):
+    x=int(a)
+    my_players.append( Player(arg, x) ) 
+    
+    for obj in my_players: 
+        print( obj.name, obj.level, sep =' ' ) 
+    
+    jugador = Player(arg, x)
+    await ctx.send("Nuevo Jugador: " + jugador.name + "  Nivel: " + str(x))
 
+#@bot.command(name='ver_tabla')
+#async def tabla(ctx):
+    #await mostrar_tabla()
 
 async def playSound(ctx, soundName):
     channel = ctx.message.author.voice.channel
