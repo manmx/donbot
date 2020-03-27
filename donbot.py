@@ -68,6 +68,7 @@ async def soundBoard(ctx, arg):
 #-------------------Callejeras Tabla
 @bot.command(name='prueba')
 async def jugador_disord(ctx, arg, a):
+    global my_players
     x=int(a)
     my_players.append( Player(arg, x) ) 
     
@@ -77,9 +78,10 @@ async def jugador_disord(ctx, arg, a):
     jugador = Player(arg, x)
     await ctx.send("Nuevo Jugador: " + jugador.name + "  Nivel: " + str(x))
 
-#@bot.command(name='ver_tabla')
-#async def tabla(ctx):
-    #await mostrar_tabla()
+@bot.command(name='ver_tabla')
+async def tabla(ctx):
+    tabla = mostrar_tabla()
+    await ctx.send(tabla)
 
 async def playSound(ctx, soundName):
     channel = ctx.message.author.voice.channel
@@ -93,6 +95,13 @@ async def playSound(ctx, soundName):
         voice = await channel.connect()
     source = FFmpegPCMAudio(f"{soundsPath}{soundName}")
     player = voice.play(source)
+
+def mostrar_tabla():
+    global my_players
+    tabla = ""
+    for obj in my_players: 
+        tabla +=  obj.name + " " + str(obj.level) + "\n"  
+    return tabla
 
 def connectToDrive():
     """Shows basic usage of the Drive v3 API.
