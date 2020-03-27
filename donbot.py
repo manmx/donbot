@@ -20,18 +20,42 @@ from os.path import isfile, join
 
 from gtts import gTTS 
 
+import time
+from timeloop import Timeloop
+from datetime import timedelta
+
+#-----------------------------------------
+class PickleUser:
+    def __init__(self, id, name, pickles):
+        self.id = id
+        self.name = name
+        self.pickles = pickles
+    
+    def __str__(self):
+        return f"{str(self.name)}<{str(self.id)}>: {str(self.pickles)}\t pickles."
+#--------------------------------------------
+
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly', 'https://www.googleapis.com/auth/drive.apps.readonly', 'https://www.googleapis.com/auth/drive.readonly']
 sounds = []
+my_players = []
 bot = commands.Bot(command_prefix='*')
 soundsPath = "/usr/src/app/sounds/"
+timeloop = Timeloop()
 
 def main():
     global sounds
-    sounds = initSounds()
+    timeloop.start(block=False)
+    #sounds = initSounds()
     load_dotenv()
     token = os.getenv('DISCORD_TOKEN')
     bot.run(token)
+
+@timeloop.job(interval=timedelta(seconds=5))
+def sample_job_every_5s():
+    global my_players
+
+    
 
 @bot.command(name='say')
 async def say_discord(ctx, arg):
@@ -47,6 +71,20 @@ async def initSounds_discord(ctx):
     await ctx.send("Please wait, initializing sounds")
     sounds = initSounds()
     await ctx.send(f"Sounds have been initialized, list of sounds:{str(sounds)}")
+
+@bot.command(name='initList')
+async def initList_discord(ctx):
+    global my_players
+    for member in ctx.message.guild.members:
+        my_players.append(PickleUser(member.id, member.name, 100))
+
+@bot.command(name='showList')
+async def showList_discord(ctx):
+    global my_players
+    completeList = ""
+    for player in my_players:
+        completeList += str(player) + "\n"
+    await ctx.send(completeList)
 
 @bot.command(name='p')
 async def soundBoard(ctx, arg):
