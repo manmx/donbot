@@ -1,6 +1,9 @@
 # donbot.py
 import os
 import random
+import numpy as np
+
+
 
 from discord.ext import commands
 from discord import FFmpegPCMAudio
@@ -26,9 +29,11 @@ sounds = []
 bot = commands.Bot(command_prefix='ñ')
 soundsPath = "/usr/src/app/sounds/"
 
+
 def main():
     global sounds
     #sounds = initSounds()
+    
     load_dotenv()
     token = os.getenv('DISCORD_TOKEN')
     bot.run(token)
@@ -40,6 +45,22 @@ async def say_discord(ctx, arg):
     speech = gTTS(text = text, lang = language, slow = False)
     speech.save(f'{soundsPath}text.mp3')
     await playSound(ctx, "text.mp3")
+
+@bot.command(name='calles')
+async def calles_discord(ctx, arg):
+    lista=arg
+    
+    lista=lista.split(",")
+    
+    lista2=np.asarray(lista)
+    
+    np.random.shuffle(lista2)
+    final=(np.shape(lista2))[0]
+    mitad=int(final/2)
+    
+
+    await ctx.send("team 1 "+str(" ".join(lista2[0:mitad ])))
+    await ctx.send("team 2 "+str(" ".join(lista2[mitad:final])))
 
 @bot.command(name='initSounds')
 async def initSounds_discord(ctx):
